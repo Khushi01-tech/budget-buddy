@@ -47,5 +47,16 @@ def get_transactions():
     
     return jsonify([dict(t) for t in transactions])
 
+# DELETE a transaction
+@app.route('/api/transactions/<int:id>', methods=['DELETE'])
+def delete_transaction(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM transactions WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Transaction deleted!"})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
