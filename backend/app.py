@@ -25,7 +25,7 @@ def add_transaction():
     ''', (
         data['type'],
         data['amount'],
-        data['category'],
+        data['category'].strip().title(),
         data.get('description', ''),
         data['date']
     ))
@@ -108,6 +108,72 @@ def get_monthly():
             monthly[month]['expenses'] = row['total']
     
     return jsonify(list(monthly.values()))
+
+# GET spending alerts
+@app.route('/api/alerts', methods=['GET'])
+def get_alerts():
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Get current month spending by category
+    cursor.execute('''
+        SELECT category, ROUND(SUM(amount), 2) as spent
+        FROM transactions
+        WHERE type = 'expense'
+        AND strftime('%Y-%m', date) = strftime('%Y-%m', 'now')
+        GROUP BY category
+    ''')
+    spending = cursor.fetchall()
+    
+    # Get budget limits
+    cursor.execute('''
+        SELECT category, monthly_limit 
+        FROM budgets 
+        WHERE month = strftime('%Y-%m', 'now')
+    ''')
+    budgets = {row['category']: row['monthly_limit'] for row in cursor.fetchall()}
+    
+    conn.close()
+    
+    alerts = []
+    for row in spending:
+        category = row['category']
+        spent = row['spent']
+        if category in budgets:
+            limit = budgets[category]
+            if spent > limit:
+                alerts.append({
+                    "category": category,
+                    "spent": spent,
+                    "limit": limit,
+                    "over_by": round(spent - limit, 2)
+                })
+    
+    return jsonify(alerts)
+
+# GET and SET budgets
+@app.route('/api/budgets', methods=['GET', 'POST'])
+def handle_budgets():
+    if request.method == 'POST':
+        data = request.get_json()
+        category = data['category'].strip().title()
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO budgets (category, monthly_limit, month)
+            VALUES (?, ?, strftime('%Y-%m', 'now'))
+        ''', (category, data['limit']))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "Budget set!"})
+    
+    else:  # GET
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM budgets ORDER BY category')
+        budgets = cursor.fetchall()
+        conn.close()
+        return jsonify([dict(b) for b in budgets])
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
