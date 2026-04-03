@@ -174,6 +174,16 @@ def handle_budgets():
         budgets = cursor.fetchall()
         conn.close()
         return jsonify([dict(b) for b in budgets])
+    
+    # DELETE a budget
+@app.route('/api/budgets/<int:id>', methods=['DELETE'])
+def delete_budget(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM budgets WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"message": "Budget deleted!"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
