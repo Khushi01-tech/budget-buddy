@@ -31,6 +31,7 @@ export default function App() {
   const [budgetForm, setBudgetForm] = useState({ category: '', limit: '' })
   const [activePage, setActivePage] = useState('dashboard')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
@@ -104,7 +105,7 @@ export default function App() {
     }, [])
 
   const s = {
-    app: { display: 'flex', minHeight: '100vh', fontFamily: "'Inter', 'Segoe UI', sans-serif", background: '#0f1117' },
+    app: { display: 'flex', minHeight: '100vh', fontFamily: "'Inter', 'Segoe UI', sans-serif", background: darkMode ? '#0f1117' : '#f1f5f9' },
     
     // Desktop sidebar
     sidebar: { width: '220px', background: '#13151e', display: isMobile ? 'none' : 'flex', flexDirection: 'column', padding: '0', position: 'fixed', height: '100vh', borderRight: '1px solid #1e2130', zIndex: 100 },
