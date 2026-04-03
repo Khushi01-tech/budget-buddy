@@ -31,6 +31,8 @@ export default function App() {
   const [budgetForm, setBudgetForm] = useState({ category: '', limit: '' })
   const [activePage, setActivePage] = useState('dashboard')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState('all')
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [form, setForm] = useState({ type: 'expense', amount: '', category: '', description: '', date: '' })
 
@@ -85,6 +87,13 @@ export default function App() {
     setMenuOpen(false)
   }
 
+  const filteredTransactions = transactions.filter(t => {
+    const matchesSearch = t.category.toLowerCase().includes(search.toLowerCase()) || 
+      (t.description && t.description.toLowerCase().includes(search.toLowerCase()))
+    const matchesFilter = filter === 'all' || t.type === filter
+    return matchesSearch && matchesFilter
+  })
+  
   const pieData = transactions
     .filter(t => t.type === 'expense')
     .reduce((acc, t) => {
@@ -314,8 +323,22 @@ export default function App() {
               </form>
             </div>
             <div style={s.card}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexDirection: isMobile ? 'column' : 'row' }}>
+    <input
+      type="text"
+      placeholder="Search by category or description..."
+      value={search}
+      onChange={e => setSearch(e.target.value)}
+      style={{ ...s.input, flex: 1 }}
+    />
+    <select value={filter} onChange={e => setFilter(e.target.value)} style={{ ...s.select, width: isMobile ? '100%' : '160px' }}>
+      <option value="all">All</option>
+      <option value="income">Income only</option>
+      <option value="expense">Expenses only</option>
+    </select>
+  </div>
               <div style={s.sectionTitle}>All Transactions</div>
-              {transactions.length === 0 ? <div style={s.emptyState}>No transactions yet</div> : transactions.map(t => (
+              {filteredTransactions.length === 0 ? <div style={s.emptyState}>No transactions found</div> : filteredTransactions.map(t => (
                 <div key={t.id} style={s.txRow}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ ...s.txIcon, background: t.type === 'income' ? '#10b98120' : '#ef444420', color: t.type === 'income' ? '#10b981' : '#ef4444' }}>
