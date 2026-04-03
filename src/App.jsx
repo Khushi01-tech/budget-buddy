@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
 
-const API = 'http://127.0.0.1:5000'
+const API = 'https://fintrackr-api.onrender.com'
 
 const Icon = ({ type }) => {
   const icons = {

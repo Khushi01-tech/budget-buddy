@@ -3,7 +3,7 @@ from flask_cors import CORS
 from database import init_db, get_db
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://jazzy-sprinkles-9fbe09.netlify.app"])
 
 init_db()
 
