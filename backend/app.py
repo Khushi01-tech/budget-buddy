@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from database import init_db, get_db
+import requests
+import os
 
 app = Flask(__name__)
 CORS(app, origins=["https://myfintrackr.netlify.app", "https://khushi01-tech.github.io"])
@@ -184,6 +186,21 @@ def delete_budget(id):
     conn.commit()
     conn.close()
     return jsonify({"message": "Budget deleted!"})
+
+@app.route('/api/ask-ai', methods=['POST'])
+def ask_ai():
+    data = request.get_json()
+    prompt = data.get('prompt', '')
+    
+    gemini_url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyD03_U7I014XaXJbJ7i2SAQzGUIoEoNO18'
+    
+    response = requests.post(gemini_url, json={
+        'contents': [{'parts': [{'text': prompt}]}]
+    })
+    
+    result = response.json()
+    text = result['candidates'][0]['content']['parts'][0]['text']
+    return jsonify({'response': text})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=False)
