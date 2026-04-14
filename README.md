@@ -1,7 +1,7 @@
 # FinTrackr 💰
 A full-stack personal finance tracker built with React + Python Flask.
 
-🔗 **Live site:** https://jazzy-sprinkles-9fbe09.netlify.app
+🔗 **Live site:** [https://jazzy-sprinkles-9fbe09.netlify.app](https://khushi01-tech.github.io/budget-buddy/)
 
 ## Features
 - Track income & expenses in real time
